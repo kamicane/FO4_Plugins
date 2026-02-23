@@ -1,6 +1,6 @@
 # Persistent Console History
 
-Makes the console command history persist between saves
+Makes the console command history persist between sessions
 
 ## Links
 
