@@ -1,19 +1,14 @@
-# F4SE plugins
+# FO4 Plugins
 
 This repository is a monorepo that houses multiple Fallout 4 mod projects and shared libraries used across them.
 
 The purpose is to keep the build infrastructure and related / shared code together for simplified dependency management.
 
-For the time being, this build system will support both Fallout 4 1.10.163 and Anniversary Edition.
-
 ## CommonLibF4
 
-This build system includes two versions of CommonLibF4: One for AE and one for pre-NG.
-They are submodules in ./extern, pulled from my fork of [powerof3/CommonLibF4](https://github.com/powerof3/CommonLibF4). Both submodules point to the same repo at different branches.
+This repo uses [my fork](https://github.com/kamicane/Commonlibf4) of [LucaDotGit's CommonLibF4 NG](https://github.com/LucaDotGit/Commonlibf4), which adds support for AE.
 
-The [more up-to-date CommonLibF4 version](https://github.com/libxse/commonlibf4) is unfortunately incompatible with pre-NG versions, has a completely different build system and rewritten api. I chose to go with powerof3's CommonLibF4 as a base because CMake support was never dropped. It allows me to support two versions at the same time with (not so) minimal effort.
-
-There are only minimal changes and and "backported" ids (from libxse) in [kamicane/CommonLibF4](https://github.com/kamicane/CommonLibF4) that is used in this repo. Every other hack will remain project specific.
+Builds are multi-version. The plugin working in a specific version depends on the ID availability. I am not considering NG at all.
 
 ## Layout
 
@@ -25,8 +20,6 @@ There are only minimal changes and and "backported" ids (from libxse) in [kamica
 Building is done with CMake presets. It switches what ./src/main.cpp pulls in. Each subproject provides a project.hpp file with a common export interface so that main.cpp can read it. Projects do not provide cpp files, only headers.
 
 vcpkg is used for external package management (see `vcpkg.json`)
-
-Due to CommonLibF4's CMake files, the fmt and spdlog dependencies are dictated by CommonLibF4. I could not modify their build options.
 
 ## Code server
 
