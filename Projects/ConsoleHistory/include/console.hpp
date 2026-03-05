@@ -163,9 +163,9 @@ namespace Console {
 
 		// Read last lines
 		histFile->seekg(0);
-		std::string line;
-		while (std::getline(*histFile, line)) {
-			lastLines.push_back(line);
+		std::string fileLine;
+		while (std::getline(*histFile, fileLine)) {
+			lastLines.push_back(fileLine);
 			if (lastLines.size() > historySize) lastLines.pop_front();
 		}
 

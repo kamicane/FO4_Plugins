@@ -112,47 +112,6 @@ namespace Util {
 		return cachedDir / fileNameLog;
 	}
 
-	template<class... Args>
-	bool CallGlobalFunctionNoWait (std::string_view scriptName, std::string_view functionName, Args&&... args) {
-		auto* gameVM = RE::GameVM::GetSingleton();
-		auto vm = gameVM ? gameVM->GetVM() : nullptr;
-		if (!vm) return false;
-
-		auto scriptNameStr = std::string(scriptName);
-		auto functionNameStr = std::string(functionName);
-		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
-		RE::BSFixedString functionNameBS(functionNameStr.c_str());
-
-#if GAME_VERSION == 1
-		auto packedArgs = RE::BSScript::detail::FunctionArgs { vm.get(), std::forward<Args>(args)... };
-		return vm
-			->DispatchStaticCall(scriptNameBS, functionNameBS, RE::BSScript::detail::CreateThreadScrapFunction(packedArgs), nullptr);
-#else
-		return vm->DispatchStaticCall(scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
-#endif
-	}
-
-	template<class... Args>
-	bool CallFunctionNoWait (RE::TESForm* self, std::string_view scriptName, std::string_view functionName, Args&&... args) {
-		if (!self) return false;
-
-		auto* gameVM = RE::GameVM::GetSingleton();
-		auto vm = gameVM ? gameVM->GetVM() : nullptr;
-		if (!vm) return false;
-
-		auto scriptNameStr = std::string(scriptName);
-		auto functionNameStr = std::string(functionName);
-		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
-		RE::BSFixedString functionNameBS(functionNameStr.c_str());
-
-		auto& handlePolicy = vm->GetObjectHandlePolicy();
-		auto objectTypeID = static_cast<std::uint32_t>(self->GetFormType());
-		auto objectHandle = handlePolicy.GetHandleForObject(objectTypeID, self);
-		if (objectHandle == handlePolicy.EmptyHandle()) return false;
-
-		return vm->DispatchMethodCall(objectHandle, scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
-	}
-
 	spdlog::level::level_enum level_from_str (std::string_view level) {
 		auto logLevel = spdlog::level::debug;
 		if (level.empty()) return logLevel;

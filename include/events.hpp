@@ -1,7 +1,5 @@
 #pragma once
 
-#include "backports.hpp"
-
 namespace Events {
 
 	enum class SaveLoadType { Load, Save };

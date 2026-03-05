@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RE/Bethesda/UIMessage.h"
 #include "events.hpp"
 
 namespace Menu {

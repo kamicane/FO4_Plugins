@@ -13,7 +13,7 @@ namespace Menu {
 	public:
 		static constexpr const char* MENU_NAME = "TextInputMenu";
 
-		static RE::IMenu* Create (const RE::UIMessage& msg) {
+		static RE::IMenu* Create (const RE::UIMessage& /* msg */) {
 			spdlog::debug("[TextInputMenu] calling create");
 			return new TextInput();
 		}
@@ -57,7 +57,7 @@ namespace Menu {
 				return true;
 			});
 
-			Dispatcher.once("Cancel", [] (TextInput* self, ASParams) {
+			Dispatcher.once("Cancel", [] (TextInput* /* self */, ASParams) {
 				RE::UIUtils::PlayMenuSound("UIMenuCancel");
 				TextInput::Close();
 				return true;
@@ -86,7 +86,7 @@ namespace Menu {
 				RE::UI_MENU_FLAGS::kUsesMenuContext
 			);
 
-			menuHUDMode = "SpecialMode";
+			menuHUDMode.emplace("SpecialMode");
 			depthPriority = RE::UI_DEPTH_PRIORITY::kTerminal;
 
 			auto* const ScaleformManager = RE::BSScaleformManager::GetSingleton();
@@ -106,7 +106,7 @@ namespace Menu {
 				return;
 			}
 
-			filterHolder = std::make_unique<RE::BSGFxShaderFXTarget>(*uiMovie, "root.Menu_mc");
+			filterHolder = RE::msvc::make_unique<RE::BSGFxShaderFXTarget>(*uiMovie, "root.Menu_mc");
 			if (filterHolder) {
 				filterHolder->CreateAndSetFiltersToHUD(RE::HUDColorTypes::kPlayerSetColor);
 				shaderFXObjects.push_back(filterHolder.get());

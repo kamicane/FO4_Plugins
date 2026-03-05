@@ -12,7 +12,7 @@ endmacro()
 
 set(PROJECT_DIR "${CMAKE_SOURCE_DIR}/Projects/${PROJECT_ID}")
 
-set(COMMONLIBF4_DIR "${CMAKE_SOURCE_DIR}/extern/CommonLibF4_${COMMONLIBF4_VARIANT}")
+set(COMMONLIBF4_DIR "${CMAKE_SOURCE_DIR}/extern/CommonLibF4")
 
 project(${PROJECT_ID} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
@@ -100,14 +100,6 @@ endfunction()
 target_link_libraries_system(${PROJECT_ID} CommonLibF4::CommonLibF4)
 target_link_libraries_system(${PROJECT_ID} eventpp::eventpp)
 
-if(COMMONLIBF4_VARIANT STREQUAL "OG")
-  target_compile_definitions(${PROJECT_ID} PRIVATE "GAME_VERSION=1")
-elseif(COMMONLIBF4_VARIANT STREQUAL "AE")
-  target_compile_definitions(${PROJECT_ID} PRIVATE "GAME_VERSION=3")
-else()
-  target_compile_definitions(${PROJECT_ID} PRIVATE "GAME_VERSION=0")
-endif()
-
 set_target_properties(${PROJECT_ID} PROPERTIES OUTPUT_NAME "${PROJECT_ID}")
 
 target_compile_definitions(
@@ -133,5 +125,5 @@ set(OUTPUT_DIR_F4SE "${PROJECT_DIR}/F4SE/Plugins")
 add_custom_command(TARGET ${PROJECT_ID} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory "${OUTPUT_DIR_F4SE}"
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_ID}> "${OUTPUT_DIR_F4SE}"
-  COMMAND ${CMAKE_COMMAND} -E echo "Built ${PROJECT_ID} ${COMMONLIBF4_VARIANT}"
+  COMMAND ${CMAKE_COMMAND} -E echo "Built ${PROJECT_ID}"
 )

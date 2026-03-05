@@ -16,79 +16,33 @@
       "name": "RotatingSaves",
       "displayName": "Rotating Saves",
       "inherits": "x64",
-      "hidden": true,
+      "binaryDir": "${sourceDir}/build/RotatingSaves",
       "cacheVariables": {
         "PROJECT_ID": "RotatingSaves",
         "PROJECT_VERSION": "2.0.0"
       }
     },
     {
-      "name": "RotatingSaves_OG",
-      "inherits": "RotatingSaves",
-      "displayName": "Rotating Saves (OG)",
-      "binaryDir": "${sourceDir}/build/RotatingSaves_OG",
-      "cacheVariables": {
-        "COMMONLIBF4_VARIANT": "OG"
-      }
-    },
-    {
-      "name": "RotatingSaves_AE",
-      "inherits": "RotatingSaves",
-      "displayName": "Rotating Saves (AE)",
-      "binaryDir": "${sourceDir}/build/RotatingSaves_AE",
-      "cacheVariables": {
-        "COMMONLIBF4_VARIANT": "AE"
-      }
-    },
-    {
       "name": "ConsoleHistory",
       "displayName": "Console History",
       "inherits": "x64",
-      "hidden": true,
+      "binaryDir": "${sourceDir}/build/ConsoleHistory",
       "cacheVariables": {
         "PROJECT_ID": "ConsoleHistory",
         "PROJECT_VERSION": "1.2.0"
-      }
-    },
-    {
-      "name": "ConsoleHistory_OG",
-      "inherits": "ConsoleHistory",
-      "displayName": "Console History (OG)",
-      "binaryDir": "${sourceDir}/build/ConsoleHistory_OG",
-      "cacheVariables": {
-        "COMMONLIBF4_VARIANT": "OG"
-      }
-    },
-    {
-      "name": "ConsoleHistory_AE",
-      "inherits": "ConsoleHistory",
-      "displayName": "Console History (AE)",
-      "binaryDir": "${sourceDir}/build/ConsoleHistory_AE",
-      "cacheVariables": {
-        "COMMONLIBF4_VARIANT": "AE"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "RotatingSaves_OG",
-      "displayName": "RotatingSaves (OG)",
-      "configurePreset": "RotatingSaves_OG"
+      "name": "RotatingSaves",
+      "displayName": "RotatingSaves",
+      "configurePreset": "RotatingSaves"
     },
     {
-      "name": "RotatingSaves_AE",
-      "displayName": "RotatingSaves (AE)",
-      "configurePreset": "RotatingSaves_AE"
-    },
-    {
-      "name": "ConsoleHistory_OG",
-      "displayName": "Console History (OG)",
-      "configurePreset": "ConsoleHistory_OG"
-    },
-    {
-      "name": "ConsoleHistory_AE",
-      "displayName": "Console History (AE)",
-      "configurePreset": "ConsoleHistory_AE"
+      "name": "ConsoleHistory",
+      "displayName": "Console History",
+      "configurePreset": "ConsoleHistory"
     }
   ]
 }

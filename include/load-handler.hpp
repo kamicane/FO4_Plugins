@@ -1,6 +1,7 @@
 #pragma once
 
 #include "project.h"
+#include "internal.hpp"
 #include "load-order.hpp"
 
 namespace LoadHandler {
@@ -68,21 +69,21 @@ namespace LoadHandler {
 	}
 
 	inline void RunLoadFunctions () {
-		for (const auto& [key, functionName] : g_onLoadGameFunctionMap) {
-			const auto& [formKey, scriptName] = key;
+		// for (const auto& [key, functionName] : g_onLoadGameFunctionMap) {
+		// 	const auto& [formKey, scriptName] = key;
 
-			if (!formKey) {
-				spdlog::info("[RunLoadFunction] calling global function {}.{}", scriptName, functionName);
-				Util::CallGlobalFunctionNoWait(scriptName, functionName);
-				continue;
-			}
+		// 	if (!formKey) {
+		// 		spdlog::info("[RunLoadFunction] calling global function {}.{}", scriptName, functionName);
+		// 		Internal::CallGlobalFunctionNoWait(scriptName, functionName);
+		// 		continue;
+		// 	}
 
-			auto* form = formKey.Resolve();
-			if (!form) continue;
+		// 	auto* form = formKey.Resolve();
+		// 	if (!form) continue;
 
-			spdlog::info("[RunLoadFunction] calling local function {}#{}.{}", std::string(formKey), scriptName, functionName);
-			Util::CallFunctionNoWait(form, scriptName, functionName);
-		}
+		// 	spdlog::info("[RunLoadFunction] calling local function {}#{}.{}", std::string(formKey), scriptName, functionName);
+		// 	Internal::CallFunctionNoWait(form, scriptName, functionName);
+		// }
 	}
 
 }

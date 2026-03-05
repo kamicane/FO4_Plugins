@@ -7,8 +7,9 @@ const vscodeDir = join(process.cwd(), ".vscode")
 const tasksPath = join(vscodeDir, "tasks.json")
 
 const presets = JSON.parse(readFileSync(presetsPath, "utf8"))
-const nonHiddenConfigurePresets = (presets.configurePresets ?? []).filter((p) => !p.hidden)
-const basePresets = (presets.configurePresets ?? []).filter((p) => p.hidden && p.displayName)
+// const nonHiddenConfigurePresets = (presets.configurePresets ?? []).filter((p) => !p.hidden)
+const configurePresets = (presets.configurePresets ?? []).filter((p) => !p.hidden && p.displayName)
+const buildPresets = (presets.buildPresets ?? []).filter((p) => !p.hidden && p.displayName)
 
 const commonPresentation = {
 	echo: true,
@@ -32,27 +33,22 @@ tasks.push({
 	problemMatcher: []
 })
 
-function findBasePreset(baseName) {
-	for (const preset of presets.configurePresets) {
-		if (preset.name == baseName) {
-			return preset;
-			// const version = preset.cacheVariables?.PROJECT_VERSION
-			// if (version != null) return version
-		}
-	}
-}
+for (const preset of buildPresets) {
+	const id = preset.name
+	const displayName = preset.displayName
 
-// pack version does this. keeping for ref.
-function findBaseVersion(base) {
-	for (const preset of presets.configurePresets) {
-		if (preset.name == base) {
-			const version = preset.cacheVariables?.PROJECT_VERSION
-			if (version != null) return version
-		}
-	}
-}
+	// CMake build task
+	tasks.push({
+		type: "cmake",
+		label: `[${id}] Build`,
+		command: "build",
+		targets: ["all"],
+		preset: id,
+		group: { kind: "build", isDefault: false },
+		presentation: commonPresentation,
+		problemMatcher: []
+	})
 
-for (const preset of basePresets) {
 	// Deploy task
 	tasks.push({
 		label: `[${preset.name}] Deploy`,
@@ -71,31 +67,8 @@ for (const preset of basePresets) {
 		type: "process",
 		hide: false,
 		command: "${env:USERPROFILE}/bin/FO4/Papyrus_Compiler_1.10.163_Patched/PapyrusCompiler.exe",
-		args: ["${workspaceFolder}/Projects/" + `${preset.displayName}/project.ppj`],
-		options: { cwd: "${workspaceFolder}/Projects/" + preset.displayName },
-		presentation: commonPresentation,
-		problemMatcher: []
-	})
-}
-
-for (const preset of nonHiddenConfigurePresets) {
-	const id = preset.name
-	const displayName = preset.displayName
-
-	const baseName = preset.inherits
-	const basePreset = findBasePreset(baseName)
-	const baseDisplayName = basePreset.displayName
-
-	console.log(baseName, id, displayName)
-
-	// CMake build task
-	tasks.push({
-		type: "cmake",
-		label: `[${id}] Build`,
-		command: "build",
-		targets: ["all"],
-		preset: id,
-		group: { kind: "build", isDefault: false },
+		args: ["${workspaceFolder}/Projects/" + `${preset.name}/project.ppj`],
+		options: { cwd: "${workspaceFolder}/Projects/" + preset.name },
 		presentation: commonPresentation,
 		problemMatcher: []
 	})
@@ -106,32 +79,35 @@ for (const preset of nonHiddenConfigurePresets) {
 		type: "process",
 		hide: false,
 		command: "bash",
-		args: ["pack-project.sh", baseName, id],
+		args: ["pack-project.sh", id],
 		options: { cwd: "${workspaceFolder}" },
 		presentation: commonPresentation,
 		problemMatcher: []
 	})
 
-	// Meta task: build + deploy
+	// Meta task: build + compile papyrus + deploy
 	tasks.push({
-		label: `[${id}] Build and Deploy`,
+		label: `[${id}] Build + Compile Papyrus`,
 		dependsOn: [
 			`[${id}] Build`,
-			`[${baseName}] Deploy`
+			`[${id}] Compile Papyrus Scripts`
 		],
 		dependsOrder: "sequence",
 		problemMatcher: []
 	})
+}
 
-	// Meta task: build + compile papyrus + deploy
+for (const preset of configurePresets) {
+	const id = preset.name
+	const displayName = preset.displayName
+
+	// CMake configure task
 	tasks.push({
-		label: `[${id}] Build, Compile Papyrus and Deploy`,
-		dependsOn: [
-			`[${id}] Build`,
-			`[${baseName}] Compile Papyrus Scripts`,
-			`[${baseName}] Deploy`
-		],
-		dependsOrder: "sequence",
+		type: "cmake",
+		label: `[${id}] Configure`,
+		command: "configure",
+		preset: id,
+		presentation: commonPresentation,
 		problemMatcher: []
 	})
 }

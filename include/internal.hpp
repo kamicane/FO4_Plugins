@@ -1,7 +1,6 @@
 #pragma once
 
 #include "util.hpp"
-#include "backports.hpp"
 
 namespace Internal {
 	using BSLM = RE::BGSSaveLoadManager;
@@ -169,7 +168,7 @@ namespace Internal {
 			 failureMessage = std::string(failureMessage),
 			 finalName = std::move(finalName),
 			 callback = std::move(callback)] () mutable {
-				auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
+				auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
 				bslm->BufferSceneScreenShot();
 
 				const bool wasSaved = bslm->SaveGame(finalName.c_str(), 0, 0, false);
@@ -200,20 +199,20 @@ namespace Internal {
 		auto* cell = player->GetParentCell();
 
 		if (cell && cell->IsInterior()) {
-			auto cellStr = RE::TESFullName::GetFullName(*cell);
-			if (!cellStr.empty()) {
-				spdlog::debug("Cell name is {}", cellStr);
-				return std::string(cellStr);
+			auto cellStrOpt = RE::TESFullName::GetFullName(cell);
+			if (cellStrOpt && !cellStrOpt->empty()) {
+				spdlog::debug("Cell name is {}", *cellStrOpt);
+				return std::string(*cellStrOpt);
 			}
 		}
 
 		auto* loc = player->GetCurrentLocation();
 
 		if (loc) {
-			auto locStr = RE::TESFullName::GetFullName(*loc);
-			if (!locStr.empty()) {
-				spdlog::debug("Location name is {}", locStr);
-				return std::string(locStr);
+			auto locStrOpt = RE::TESFullName::GetFullName(loc);
+			if (locStrOpt && !locStrOpt->empty()) {
+				spdlog::debug("Location name is {}", *locStrOpt);
+				return std::string(*locStrOpt);
 			}
 		}
 
@@ -227,18 +226,53 @@ namespace Internal {
 			return {};
 		}
 
-		auto* npc = player->GetNPC();
-		if (!npc) {
-			spdlog::warn("GetPlayerName: GetNPC returned null");
+		std::string playerName = player->GetDisplayFullName();
+		if (playerName.empty()) {
+			spdlog::warn("GetPlayerName: GetDisplayFullName returned empty string");
 			return {};
 		}
 
-		auto npcName = RE::TESFullName::GetFullName(*npc);
-		if (npcName.empty()) {
-			spdlog::warn("GetPlayerName: GetFullName returned empty string");
-			return {};
-		}
+		return playerName;
+	}
 
-		return std::string(npcName);
+	template<class... Args>
+	bool CallGlobalFunctionNoWait (std::string_view scriptName, std::string_view functionName, Args&&... args) {
+// 		auto* gameVM = RE::GameVM::GetSingleton();
+// 		auto vm = gameVM ? gameVM->GetVM() : nullptr;
+// 		if (!vm) return false;
+
+// 		auto scriptNameStr = std::string(scriptName);
+// 		auto functionNameStr = std::string(functionName);
+// 		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
+// 		RE::BSFixedString functionNameBS(functionNameStr.c_str());
+
+// #if GAME_VERSION == 1
+// 		auto packedArgs = RE::BSScript::detail::FunctionArgs { vm.get(), std::forward<Args>(args)... };
+// 		return vm
+// 			->DispatchStaticCall(scriptNameBS, functionNameBS, RE::BSScript::detail::CreateThreadScrapFunction(packedArgs), nullptr);
+// #else
+// 		return vm->DispatchStaticCall(scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
+// #endif
+	}
+
+	template<class... Args>
+	bool CallFunctionNoWait (RE::TESForm* self, std::string_view scriptName, std::string_view functionName, Args&&... args) {
+		if (!self) return false;
+
+		auto* gameVM = RE::GameVM::GetSingleton();
+		auto vm = gameVM ? gameVM->GetVM() : nullptr;
+		if (!vm) return false;
+
+		auto scriptNameStr = std::string(scriptName);
+		auto functionNameStr = std::string(functionName);
+		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
+		RE::BSFixedString functionNameBS(functionNameStr.c_str());
+
+		auto& handlePolicy = vm->GetObjectHandlePolicy();
+		auto objectTypeID = static_cast<std::uint32_t>(self->GetFormType());
+		auto objectHandle = handlePolicy.GetHandleForObject(objectTypeID, self);
+		if (objectHandle == handlePolicy.EmptyHandle()) return false;
+
+		return vm->DispatchMethodCall(objectHandle, scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
 	}
 }

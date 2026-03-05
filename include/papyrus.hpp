@@ -2,7 +2,6 @@
 
 #include "internal.hpp"
 #include "util.hpp"
-#include "backports.hpp"
 #include "menu-text-input.hpp"
 
 namespace Papyrus {
@@ -342,21 +341,21 @@ namespace Papyrus {
 	// }
 
 	inline void QueueForceSave (std::monostate mono) {
-		auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
+		auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
 
 		bslm->BufferSceneScreenShot();
-		bslm->QueueSaveLoadTask(BGSSaveLoadManagerEx::QUEUED_TASK::kForceSave);
+		bslm->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kForceSave);
 	}
 
 	inline void QueueAutoSave (std::monostate mono) {
-		auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
+		auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
 
 		bslm->BufferSceneScreenShot();
-		bslm->QueueSaveLoadTask(BGSSaveLoadManagerEx::QUEUED_TASK::kAutoSave);
+		bslm->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kAutoSave);
 	}
 
 	inline void QueueLoadGame (std::monostate mono, std::string_view saveName) {
-		auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
+		auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
 
 		auto playerId = Internal::EnsurePlayerId();
 		auto sanitizedSaveName = Util::SanitizeSaveName(saveName);
@@ -365,18 +364,18 @@ namespace Papyrus {
 		g_load_entry.fileName = g_load_name.c_str();
 
 		bslm->queuedEntryToLoad = &g_load_entry;
-		bslm->QueueSaveLoadTask(BGSSaveLoadManagerEx::QUEUED_TASK::kLoadGame);
+		bslm->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kLoadGame);
 	}
 
 	inline void QueueSaveAndQuitToDesktop (std::monostate mono) {
-		auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
+		auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
 		bslm->BufferSceneScreenShot();
-		bslm->QueueSaveLoadTask(BGSSaveLoadManagerEx::QUEUED_TASK::kSaveAndQuitToDesktop);
+		bslm->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kSaveAndQuitToDesktop);
 	}
 
 	inline void QueueLoadLastSave (std::monostate mono) {
-		auto* bslm = BGSSaveLoadManagerEx::GetSingleton();
-		bslm->QueueSaveLoadTask(BGSSaveLoadManagerEx::QUEUED_TASK::kLoadMostRecentSave);
+		auto* bslm = RE::BGSSaveLoadManager::GetSingleton();
+		bslm->QueueSaveLoadTask(RE::BGSSaveLoadManager::QUEUED_TASK::kLoadMostRecentSave);
 	}
 
 	inline bool OpenTextInputMenu_ (RE::BSScript::IVirtualMachine& vm, std::uint32_t stackId, std::monostate mono) {

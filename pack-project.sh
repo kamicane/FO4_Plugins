@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -ne 2 ]; then
-	echo "Usage: $0 PROJECT_ID ZIP_NAME" >&2
-	exit 2
-fi
-
 PROJECT_ID="$1"
-ZIP_NAME="$2"
+ZIP_NAME="$PROJECT_ID"
 
 # Read version from CMakePresets.json by following the preset's inherits (scalar only)
 FILE="CMakePresets.json"
@@ -16,13 +11,10 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 5
 fi
 
-inherits=$(jq -r --arg z "$ZIP_NAME" '.configurePresets[] | select(.name==$z) | .inherits // empty' "$FILE")
-[ -n "$inherits" ] || { echo "inherits not found for preset $ZIP_NAME" >&2; exit 6; }
+VERSION=$(jq -r --arg z "$ZIP_NAME" '.configurePresets[] | select(.name==$z) | .cacheVariables.PROJECT_VERSION // empty' "$FILE")
+[ -n "$VERSION" ] || { echo "PROJECT_VERSION not found for preset $ZIP_NAME" >&2; exit 6; }
 
-VERSION=$(jq -r --arg inh "$inherits" '.configurePresets[] | select(.name==$inh) | .cacheVariables.PROJECT_VERSION // empty' "$FILE")
-[ -n "$VERSION" ] || { echo "PROJECT_VERSION not found for preset $inherits" >&2; exit 7; }
-
-echo "Using PROJECT_VERSION=$VERSION (from $FILE -> $inherits)"
+echo "Using PROJECT_VERSION=$VERSION (from $FILE -> $ZIP_NAME)"
 DEST_DIR="./release"
 
 SRC_DIR="Projects/$PROJECT_ID"
