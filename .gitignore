@@ -1,7 +1,7 @@
 build
 release
 Projects/*/F4SE
-/.vs
+/.vscode
 *.temp
 *.tmp
 .github

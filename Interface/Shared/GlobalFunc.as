@@ -8,30 +8,30 @@ package Shared
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import scaleform.gfx.Extensions;
-	
+
 	public class GlobalFunc
 	{
-		
+
 		public static const PIPBOY_GREY_OUT_ALPHA:Number = 0.5;
-		
+
 		public static const SELECTED_RECT_ALPHA:Number = 1;
-		
+
 		public static const DIMMED_ALPHA:Number = 0.65;
-		
+
 		public static const NUM_DAMAGE_TYPES:uint = 6;
-		
+
 		protected static const CLOSE_ENOUGH_EPSILON:Number = 0.001;
-		
-		public static const MAX_TRUNCATED_TEXT_LENGTH = 42;
-		
+
+		public static const MAX_TRUNCATED_TEXT_LENGTH:uint = 42;
+
 		public static const PLAY_FOCUS_SOUND:String = "GlobalFunc::playFocusSound";
-		 
-		
+
+
 		public function GlobalFunc()
 		{
 			super();
 		}
-		
+
 		public static function Lerp(aTargetMin:Number, aTargetMax:Number, aSourceMin:Number, aSourceMax:Number, aSource:Number, abClamp:Boolean) : Number
 		{
 			var fresult:Number = aTargetMin + (aSource - aSourceMin) / (aSourceMax - aSourceMin) * (aTargetMax - aTargetMin);
@@ -48,18 +48,18 @@ package Shared
 			}
 			return fresult;
 		}
-		
+
 		public static function RoundDecimal(aNumber:Number, aPrecision:Number) : Number
 		{
 			var decimal:Number = Math.pow(10,aPrecision);
 			return Math.round(decimal * aNumber) / decimal;
 		}
-		
+
 		public static function CloseToNumber(aNumber1:Number, aNumber2:Number) : Boolean
 		{
 			return Math.abs(aNumber1 - aNumber2) < CLOSE_ENOUGH_EPSILON;
 		}
-		
+
 		public static function MaintainTextFormat() : *
 		{
 			TextField.prototype.SetText = function(aText:String, abHTMLText:Boolean, aUpperCase:Boolean = false):*
@@ -94,7 +94,7 @@ package Shared
 				}
 			};
 		}
-		
+
 		public static function SetText(aTextField:TextField, aText:String, abHTMLText:Boolean, abUpperCase:Boolean = false, abTruncate:* = false) : *
 		{
 			var format:TextFormat = null;
@@ -128,7 +128,7 @@ package Shared
 				aTextField.text = aTextField.text.slice(0,MAX_TRUNCATED_TEXT_LENGTH - 3) + "...";
 			}
 		}
-		
+
 		public static function LockToSafeRect(aDisplayObject:DisplayObject, aPosition:String, aSafeX:Number = 0, aSafeY:Number = 0) : *
 		{
 			var visibleRect:Rectangle = Extensions.visibleRect;
@@ -162,7 +162,7 @@ package Shared
 				aDisplayObject.x = bottomRight.x;
 			}
 		}
-		
+
 		public static function AddMovieExploreFunctions() : *
 		{
 			MovieClip.prototype.getMovieClips = function():Array
@@ -185,13 +185,13 @@ package Shared
 				{
 					if(this[i] is MovieClip && this[i] != this)
 					{
-						trace(this[i]);
+						// trace(this[i]);
 						this[i].showMovieClips();
 					}
 				}
 			};
 		}
-		
+
 		public static function AddReverseFunctions() : *
 		{
 			MovieClip.prototype.PlayReverseCallback = function(event:Event):*
@@ -228,7 +228,7 @@ package Shared
 				this.gotoAndPlay(aFrame);
 			};
 		}
-		
+
 		public static function StringTrim(astrText:String) : String
 		{
 			var strResult:String = null;

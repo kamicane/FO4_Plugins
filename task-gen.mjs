@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs"
-import { join } from "node:path"
+import fs from "node:fs"
+import path from "node:path"
 
-const presetsPath = join(process.cwd(), "CMakePresets.json")
-const vscodeDir = join(process.cwd(), ".vscode")
-const tasksPath = join(vscodeDir, "tasks.json")
+const presetsPath = path.join(process.cwd(), "CMakePresets.json")
+const vscodeDir = path.join(process.cwd(), ".vscode")
+const tasksPath = path.join(vscodeDir, "tasks.json")
 
-const presets = JSON.parse(readFileSync(presetsPath, "utf8"))
+const presets = JSON.parse(fs.readFileSync(presetsPath, "utf8"))
 // const nonHiddenConfigurePresets = (presets.configurePresets ?? []).filter((p) => !p.hidden)
 const configurePresets = (presets.configurePresets ?? []).filter((p) => !p.hidden && p.displayName)
 const buildPresets = (presets.buildPresets ?? []).filter((p) => !p.hidden && p.displayName)
@@ -36,6 +36,7 @@ tasks.push({
 for (const preset of buildPresets) {
 	const id = preset.name
 	const displayName = preset.displayName
+	const projectDir = "${workspaceFolder}/Projects/" + preset.name
 
 	// CMake build task
 	tasks.push({
@@ -51,11 +52,11 @@ for (const preset of buildPresets) {
 
 	// Deploy task
 	tasks.push({
-		label: `[${preset.name}] Deploy`,
+		label: `[${id}] Deploy`,
 		type: "process",
 		hide: false,
 		command: "node",
-		args: ["deploy-project.mjs", preset.name, "${env:USERPROFILE}/MO2Data/Fallout4/mods/" + preset.displayName],
+		args: ["deploy-project.mjs", projectDir, "${env:USERPROFILE}/MO2Data/Fallout4/mods/" + displayName],
 		options: { cwd: "${workspaceFolder}" },
 		presentation: commonPresentation,
 		problemMatcher: []
@@ -63,12 +64,12 @@ for (const preset of buildPresets) {
 
 	// Compile Papyrus task
 	tasks.push({
-		label: `[${preset.name}] Compile Papyrus Scripts`,
+		label: `[${id}] Compile Papyrus`,
 		type: "process",
 		hide: false,
 		command: "${env:USERPROFILE}/bin/FO4/Papyrus_Compiler_1.10.163_Patched/PapyrusCompiler.exe",
-		args: ["${workspaceFolder}/Projects/" + `${preset.name}/project.ppj`],
-		options: { cwd: "${workspaceFolder}/Projects/" + preset.name },
+		args: [path.join(projectDir, "project.ppj")],
+		options: { cwd: projectDir },
 		presentation: commonPresentation,
 		problemMatcher: []
 	})
@@ -90,7 +91,7 @@ for (const preset of buildPresets) {
 		label: `[${id}] Build + Compile Papyrus`,
 		dependsOn: [
 			`[${id}] Build`,
-			`[${id}] Compile Papyrus Scripts`
+			`[${id}] Compile Papyrus`
 		],
 		dependsOrder: "sequence",
 		problemMatcher: []
@@ -112,8 +113,8 @@ for (const preset of configurePresets) {
 	})
 }
 
-if (!existsSync(vscodeDir)) {
-	mkdirSync(vscodeDir)
+if (!fs.existsSync(vscodeDir)) {
+	fs.mkdirSync(vscodeDir)
 }
 
-writeFileSync(tasksPath, JSON.stringify({ version: "2.0.0", tasks }, null, 2))
+fs.writeFileSync(tasksPath, JSON.stringify({ version: "2.0.0", tasks }, null, 2))

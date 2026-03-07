@@ -40,7 +40,7 @@ void MessageHandler (F4SE::MessagingInterface::Message* message) {
 }
 
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load (const F4SE::LoadInterface* f4se) {
-	F4SE::Init(f4se);
+	F4SE::Init(f4se, false);
 
 	Util::LoadIni(Project::ID);
 

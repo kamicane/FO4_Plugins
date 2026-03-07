@@ -1,4 +1,4 @@
-﻿package Shared.AS3
+package Shared.AS3
 {
 	import Shared.AS3.COMPANIONAPP.CompanionAppMode;
 	import Shared.GlobalFunc;
@@ -22,7 +22,7 @@
 
 		public static const JUSTIFY_LEFT:uint = 1;
 
-		private static const DYNAMIC_MOVIE_CLIP_BUFFER = 3;
+		private static const DYNAMIC_MOVIE_CLIP_BUFFER:uint = 3;
 
 		private static const NameToTextMap:Object = {
 			"Xenon_A":"A",
@@ -103,55 +103,27 @@
 
 		public function BSButtonHint()
 		{
-			trace("[BSButtonHint] (CTOR)");
+			// trace("[BSButtonHint] (CTOR)");
 			super();
-			trace("[BSButtonHint] (SUPER)");
 			visible = false;
-			trace("[BSButtonHint] (1)");
 			mouseChildren = false;
-			trace("[BSButtonHint] (2)");
 			this.bButtonFlashing = false;
-			trace("[BSButtonHint] (3)");
 			this._strCurrentDynamicMovieClipName = "";
-			trace("[BSButtonHint] (4)");
 			this.DynamicMovieClip = null;
-			trace("[BSButtonHint] (5)");
-
-			if (this.textField_tf) {
-				trace("[BSButtonHint] (6)");
-				this._DyanmicMovieHeight = this.textField_tf.height;
-				trace("[BSButtonHint] (7)");
-				this._DynamicMovieY = this.textField_tf.y;
-				trace("[BSButtonHint] (TF_START)");
-
-				this.SetUpTextFields(this.textField_tf);
-				trace("[BSButtonHint] (8)");
-			}
-			trace("[BSButtonHint] (9)");
-
-			if (this.IconHolderInstance) {
-				this.SetUpTextFields(this.IconHolderInstance.IconAnimInstance.Icon_tf);
-			}
-
-			if (this.SecondaryIconHolderInstance) {
-				this.SetUpTextFields(this.SecondaryIconHolderInstance.IconAnimInstance.Icon_tf);
-			}
-
-			trace("[BSButtonHint] (TF_END)");
-
+			this._DyanmicMovieHeight = this.textField_tf.height;
+			this._DynamicMovieY = this.textField_tf.y;
+			this.SetUpTextFields(this.textField_tf);
+			this.SetUpTextFields(this.IconHolderInstance.IconAnimInstance.Icon_tf);
+			this.SetUpTextFields(this.SecondaryIconHolderInstance.IconAnimInstance.Icon_tf);
 			this._hitArea = new Sprite();
 			this._hitArea.graphics.beginFill(0);
 			this._hitArea.graphics.drawRect(0,0,1,1);
 			this._hitArea.graphics.endFill();
 			this._hitArea.visible = false;
 			this._hitArea.mouseEnabled = false;
-
-			trace("[BSButtonHint] (LISTN_START)");
 			addEventListener(MouseEvent.CLICK,this.onTextClick);
 			addEventListener(MouseEvent.MOUSE_OVER,this.onMouseOver);
 			addEventListener(MouseEvent.MOUSE_OUT,this.onMouseOut);
-
-			trace("[BSButtonHint] (LISTN_END)");
 		}
 
 		public function set ButtonHintData(value:BSButtonHintData) : void
@@ -306,7 +278,7 @@
 
 		public function onTextClick(event:MouseEvent) : void
 		{
-			trace("BSButtonHint::onTextClick");
+			// trace("BSButtonHint::onTextClick");
 			if(!this.ButtonDisabled && this.ButtonVisible)
 			{
 				this._buttonHintData.onTextClick();
@@ -343,13 +315,13 @@
 
 		private function onMouseOver(event:MouseEvent) : *
 		{
-			trace("BSButtonHint::onMouseOver");
+			// trace("BSButtonHint::onMouseOver");
 			this.bMouseOver = true;
 		}
 
 		protected function onMouseOut(event:MouseEvent) : *
 		{
-			trace("BSButtonHint::onMouseOut");
+			// trace("BSButtonHint::onMouseOut");
 			this.bMouseOver = false;
 		}
 

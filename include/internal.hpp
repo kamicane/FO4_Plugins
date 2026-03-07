@@ -5,18 +5,45 @@
 namespace Internal {
 	using BSLM = RE::BGSSaveLoadManager;
 
-	inline std::unordered_map<std::string, std::string> g_caller_name_map {};
+	inline const std::regex colon_re(R"(:+)");
 
-	inline void ShowHUDNotification (std::string_view message) {
+	inline std::unordered_map<std::string, std::string> CallerNameMap {};
+
+	template <typename T = RE::TESForm>
+	inline T* GetBaseForm(RE::TESObjectREFR* objectRef) {
+		if (!objectRef) return nullptr;
+
+		auto* baseObj = objectRef->GetBaseObject();
+		if (!baseObj) return nullptr;
+		return baseObj->As<T>();
+	}
+
+	template <typename T = RE::TESForm>
+	inline T* GetForm(RE::TESForm* baseForm) {
+		if (!baseForm) return nullptr;
+		return baseForm->As<T>();
+	}
+
+	template <typename T = RE::TESForm>
+	inline T* GetForm(RE::TESFormID formId) {
+		auto* baseForm = RE::TESForm::GetFormByID(formId);
+		if (!baseForm) return nullptr;
+		return baseForm->As<T>();
+	}
+
+	inline void ShowNotification (std::string_view message, bool asWarning) {
 		if (message.empty()) return;
 
 		std::string localMessage = std::string { message };
-		RE::SendHUDMessage::ShowHUDMessage(localMessage.c_str(), nullptr, false, false);
+		RE::SendHUDMessage::ShowHUDMessage(localMessage.c_str(), nullptr, false, asWarning);
 	}
 
 	inline std::string RegisterCallerName (std::string_view scriptName, std::string_view mapName) {
-		auto sanitized = Util::SanitizeFileName(mapName);
-		g_caller_name_map[std::string(scriptName)] = sanitized;
+		auto scriptName_s = std::string(scriptName);
+		auto mapName_s = std::string(mapName);
+
+		auto sanitized = std::regex_replace(mapName_s, colon_re, "＿");
+		CallerNameMap[scriptName_s] = sanitized;
 		return sanitized;
 	}
 
@@ -66,8 +93,8 @@ namespace Internal {
 
 		auto* caller = frame->previousFrame;
 		if (caller && caller->owningObjectType) {
-			const char* name = caller->owningObjectType->GetName();
-			return name ? std::string { name } : fallback;
+			std::string name = caller->owningObjectType->GetName();
+			if (!name.empty()) return name;
 		}
 
 		return fallback;
@@ -75,11 +102,44 @@ namespace Internal {
 
 	inline std::string GetCallerName (RE::BSScript::IVirtualMachine& vm, std::uint32_t stackId) {
 		auto scriptName = GetCallerNameRaw(vm, stackId);
-		auto it = g_caller_name_map.find(scriptName);
-		if (it == g_caller_name_map.end()) {
-			it = g_caller_name_map.emplace(scriptName, Util::SanitizeFileName(scriptName)).first;
+		auto it = CallerNameMap.find(scriptName);
+		if (it == CallerNameMap.end()) {
+			return RegisterCallerName(scriptName, scriptName);
 		}
 		return it->second;
+	}
+
+	inline std::string ToString (RE::TESForm* form) {
+		if (form) {
+			std::string formType = RE::TESForm::GetFormTypeString(form->GetFormType());
+			auto nameOpt = RE::TESFullName::GetFullName(form);
+			auto name = std::string(nameOpt ? *nameOpt : "");
+			return fmt::format("<{}:{} {:08X} '{}'>", formType, form->GetFormEditorID(), form->GetFormID(), name);
+		}
+
+		return "<None>";
+	}
+
+	inline std::string ToString (RE::TESObjectREFR* objectRef) {
+		if (objectRef) {
+			auto baseStr = ToString(objectRef->GetBaseObject());
+			std::string name;
+
+			if (auto* extraList = objectRef->extraList.get()) {
+				if (auto* xText = extraList->GetByType<RE::ExtraTextDisplayData>()) {
+					name = std::string(xText->displayName);
+				}
+			}
+
+			// if (name.empty()) {
+			// 	auto nameOpt = RE::TESFullName::GetFullName(objectRef->GetBaseObject());
+			// 	name = nameOpt ? *nameOpt : "";
+			// }
+
+			return fmt::format("<REFR{} {:08X} '{}'>", baseStr, objectRef->GetFormID(), name);
+		}
+
+		return "<None>";
 	}
 
 	inline std::string ToString (const RE::BSScript::Variable& var) {
@@ -96,8 +156,18 @@ namespace Internal {
 				return "<None>";
 			case RE::BSScript::TypeInfo::RawType::kBool:
 				return RE::BSScript::get<bool>(var) ? "true" : "false";
-			case RE::BSScript::TypeInfo::RawType::kObject:
+			case RE::BSScript::TypeInfo::RawType::kObject: {
+				auto scriptObj = RE::BSScript::get<RE::BSScript::Object>(var);
+				if (scriptObj) {
+					if (auto* objectRef = scriptObj->Resolve<RE::TESObjectREFR>()) {
+						return ToString(objectRef);
+					}
+					if (auto* form = scriptObj->Resolve<RE::TESForm>()) {
+						return ToString(form);
+					}
+				}
 				return "<Object>";
+			}
 			case RE::BSScript::TypeInfo::RawType::kStruct:
 				return "<Struct>";
 			case RE::BSScript::TypeInfo::RawType::kVar:
@@ -175,12 +245,12 @@ namespace Internal {
 
 				if (wasSaved && !successMessage.empty()) {
 					auto fmtSuccessMessage = fmt::format(fmt::runtime(successMessage), saveName);
-					ShowHUDNotification(fmtSuccessMessage);
+					ShowNotification(fmtSuccessMessage, false);
 				}
 
 				if (!wasSaved && !failureMessage.empty()) {
 					auto fmtFailureMessage = fmt::format(fmt::runtime(failureMessage), saveName);
-					ShowHUDNotification(fmtFailureMessage);
+					ShowNotification(fmtFailureMessage, true);
 				}
 
 				if (callback) callback(wasSaved);
@@ -237,22 +307,14 @@ namespace Internal {
 
 	template<class... Args>
 	bool CallGlobalFunctionNoWait (std::string_view scriptName, std::string_view functionName, Args&&... args) {
-// 		auto* gameVM = RE::GameVM::GetSingleton();
-// 		auto vm = gameVM ? gameVM->GetVM() : nullptr;
-// 		if (!vm) return false;
+		auto* gameVM = RE::GameVM::GetSingleton();
+		auto vm = gameVM ? gameVM->GetVM() : nullptr;
+		if (!vm) return false;
 
-// 		auto scriptNameStr = std::string(scriptName);
-// 		auto functionNameStr = std::string(functionName);
-// 		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
-// 		RE::BSFixedString functionNameBS(functionNameStr.c_str());
+		RE::BSFixedString scriptNameBS(scriptName);
+		RE::BSFixedString functionNameBS(functionName);
 
-// #if GAME_VERSION == 1
-// 		auto packedArgs = RE::BSScript::detail::FunctionArgs { vm.get(), std::forward<Args>(args)... };
-// 		return vm
-// 			->DispatchStaticCall(scriptNameBS, functionNameBS, RE::BSScript::detail::CreateThreadScrapFunction(packedArgs), nullptr);
-// #else
-// 		return vm->DispatchStaticCall(scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
-// #endif
+		return vm->DispatchStaticCall(scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
 	}
 
 	template<class... Args>
@@ -263,16 +325,19 @@ namespace Internal {
 		auto vm = gameVM ? gameVM->GetVM() : nullptr;
 		if (!vm) return false;
 
-		auto scriptNameStr = std::string(scriptName);
-		auto functionNameStr = std::string(functionName);
-		RE::BSFixedString scriptNameBS(scriptNameStr.c_str());
-		RE::BSFixedString functionNameBS(functionNameStr.c_str());
+		RE::BSFixedString scriptNameBS(scriptName);
+		RE::BSFixedString functionNameBS(functionName);
 
 		auto& handlePolicy = vm->GetObjectHandlePolicy();
 		auto objectTypeID = static_cast<std::uint32_t>(self->GetFormType());
 		auto objectHandle = handlePolicy.GetHandleForObject(objectTypeID, self);
 		if (objectHandle == handlePolicy.EmptyHandle()) return false;
 
-		return vm->DispatchMethodCall(objectHandle, scriptNameBS, functionNameBS, nullptr, std::forward<Args>(args)...);
+		RE::BSTSmartPointer<RE::BSScript::Object> boundObj;
+		if (!vm->FindBoundObject(objectHandle, scriptNameBS.c_str(), false, boundObj, false) || !boundObj) {
+			return false;
+		}
+
+		return vm->DispatchMethodCall(boundObj, functionNameBS, nullptr, std::forward<Args>(args)...);
 	}
 }

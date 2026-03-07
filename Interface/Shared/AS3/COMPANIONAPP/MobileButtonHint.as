@@ -1,4 +1,4 @@
-﻿package Shared.AS3.COMPANIONAPP
+package Shared.AS3.COMPANIONAPP
 {
 	import Shared.AS3.BSButtonHint;
 	import flash.display.MovieClip;

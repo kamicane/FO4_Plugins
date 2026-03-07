@@ -6,10 +6,21 @@
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+      }
+    },
+    {
+      "name": "fex",
+      "displayName": "fex",
+      "inherits": "x64",
+      "binaryDir": "${sourceDir}/build/fex",
+      "cacheVariables": {
+        "PROJECT_ID": "fex",
+        "PROJECT_VERSION": "1.0.0"
       }
     },
     {
@@ -36,13 +47,18 @@
   "buildPresets": [
     {
       "name": "RotatingSaves",
-      "displayName": "RotatingSaves",
+      "displayName": "Rotating Saves",
       "configurePreset": "RotatingSaves"
     },
     {
       "name": "ConsoleHistory",
       "displayName": "Console History",
       "configurePreset": "ConsoleHistory"
+    },
+    {
+      "name": "fex",
+      "displayName": "fex",
+      "configurePreset": "fex"
     }
   ]
 }

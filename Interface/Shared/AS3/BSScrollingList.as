@@ -13,85 +13,85 @@ package Shared.AS3
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
 	import flash.utils.getDefinitionByName;
-	
+
 	public class BSScrollingList extends MovieClip
 	{
-		
+
 		public static const TEXT_OPTION_NONE:String = "None";
-		
+
 		public static const TEXT_OPTION_SHRINK_TO_FIT:String = "Shrink To Fit";
-		
+
 		public static const TEXT_OPTION_MULTILINE:String = "Multi-Line";
-		
+
 		public static const SELECTION_CHANGE:String = "BSScrollingList::selectionChange";
-		
+
 		public static const ITEM_PRESS:String = "BSScrollingList::itemPress";
-		
+
 		public static const LIST_PRESS:String = "BSScrollingList::listPress";
-		
+
 		public static const LIST_ITEMS_CREATED:String = "BSScrollingList::listItemsCreated";
-		
+
 		public static const PLAY_FOCUS_SOUND:String = "BSScrollingList::playFocusSound";
-		
+
 		public static const MOBILE_ITEM_PRESS:String = "BSScrollingList::mobileItemPress";
-		 
-		
+
+
 		public var scrollList:MobileScrollList;
-		
+
 		private var _itemRendererClassName:String;
-		
+
 		public var border:MovieClip;
-		
+
 		public var ScrollUp:MovieClip;
-		
+
 		public var ScrollDown:MovieClip;
-		
+
 		protected var EntriesA:Array;
-		
+
 		protected var EntryHolder_mc:MovieClip;
-		
+
 		protected var _filterer:ListFilterer;
-		
+
 		protected var iSelectedIndex:int;
-		
+
 		protected var iSelectedClipIndex:int;
-		
+
 		protected var bRestoreListIndex:Boolean;
-		
+
 		protected var iListItemsShown:uint;
-		
+
 		protected var uiNumListItems:uint;
-		
+
 		protected var ListEntryClass:Class;
-		
+
 		protected var fListHeight:Number;
-		
+
 		protected var fVerticalSpacing:Number;
-		
+
 		protected var iScrollPosition:uint;
-		
+
 		protected var iMaxScrollPosition:uint;
-		
+
 		protected var bMouseDrivenNav:Boolean;
-		
+
 		protected var fShownItemsHeight:Number;
-		
+
 		protected var iPlatform:Number;
-		
+
 		protected var bInitialized:Boolean;
-		
+
 		protected var strTextOption:String;
-		
+
 		protected var bDisableSelection:Boolean;
-		
+
 		protected var bAllowWheelScrollNoSelectionChange:Boolean;
-		
+
 		protected var bDisableInput:Boolean;
-		
+
 		protected var bReverseList:Boolean;
-		
+
 		protected var bUpdated:Boolean;
-		
+
 		public function BSScrollingList()
 		{
 			super();
@@ -135,12 +135,12 @@ package Shared.AS3
 			this.fListHeight = 0;
 			this.iPlatform = 1;
 		}
-		
+
 		private function get needMobileScrollList() : Boolean
 		{
 			return CompanionAppMode.isOn;
 		}
-		
+
 		public function onComponentInit(event:Event) : *
 		{
 			if(this.needMobileScrollList)
@@ -160,7 +160,7 @@ package Shared.AS3
 				this.SetNumListItems(this.uiNumListItems);
 			}
 		}
-		
+
 		protected function onStageInit(event:Event) : *
 		{
 			stage.addEventListener(PlatformChangeEvent.PLATFORM_CHANGE,this.onSetPlatform);
@@ -177,7 +177,7 @@ package Shared.AS3
 				this.ScrollDown.addEventListener(MouseEvent.CLICK,this.onScrollArrowClick);
 			}
 		}
-		
+
 		protected function onStageDestruct(event:Event) : *
 		{
 			stage.removeEventListener(PlatformChangeEvent.PLATFORM_CHANGE,this.onSetPlatform);
@@ -186,7 +186,7 @@ package Shared.AS3
 				this.destroyMobileScrollingList();
 			}
 		}
-		
+
 		public function onScrollArrowClick(event:Event) : *
 		{
 			if(!this.bDisableInput && !this.bDisableSelection)
@@ -203,7 +203,7 @@ package Shared.AS3
 				event.stopPropagation();
 			}
 		}
-		
+
 		public function onEntryRollover(event:Event) : *
 		{
 			var prevSelection:* = undefined;
@@ -218,24 +218,24 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		public function onEntryPress(event:MouseEvent) : *
 		{
 			event.stopPropagation();
 			this.bMouseDrivenNav = true;
 			this.onItemPress();
 		}
-		
+
 		public function ClearList() : *
 		{
 			this.EntriesA.splice(0,this.EntriesA.length);
 		}
-		
+
 		public function GetClipByIndex(auiIndex:uint) : BSScrollingListEntry
 		{
 			return auiIndex < this.EntryHolder_mc.numChildren?this.EntryHolder_mc.getChildAt(auiIndex) as BSScrollingListEntry:null;
 		}
-		
+
 		public function GetEntryFromClipIndex(aiClipIndex:int) : int
 		{
 			var ientryIndex:int = -1;
@@ -248,7 +248,7 @@ package Shared.AS3
 			}
 			return ientryIndex;
 		}
-		
+
 		public function onKeyDown(event:KeyboardEvent) : *
 		{
 			if(!this.bDisableInput)
@@ -265,7 +265,7 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		public function onKeyUp(event:KeyboardEvent) : *
 		{
 			if(!this.bDisableInput && !this.bDisableSelection && event.keyCode == Keyboard.ENTER)
@@ -274,7 +274,7 @@ package Shared.AS3
 				event.stopPropagation();
 			}
 		}
-		
+
 		public function onMouseWheel(event:MouseEvent) : *
 		{
 			var prevScrollPos:* = undefined;
@@ -297,7 +297,7 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		private function SetFocusUnderMouse() : *
 		{
 			var objectListEntry:BSScrollingListEntry = null;
@@ -314,52 +314,52 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		public function get filterer() : ListFilterer
 		{
 			return this._filterer;
 		}
-		
+
 		public function get itemsShown() : uint
 		{
 			return this.iListItemsShown;
 		}
-		
+
 		public function get initialized() : Boolean
 		{
 			return this.bInitialized;
 		}
-		
+
 		public function get selectedIndex() : int
 		{
 			return this.iSelectedIndex;
 		}
-		
+
 		public function set selectedIndex(aiNewIndex:int) : *
 		{
 			this.doSetSelectedIndex(aiNewIndex);
 		}
-		
+
 		public function get selectedClipIndex() : int
 		{
 			return this.iSelectedClipIndex;
 		}
-		
+
 		public function set selectedClipIndex(aiNewIndex:int) : *
 		{
 			this.doSetSelectedIndex(this.GetEntryFromClipIndex(aiNewIndex));
 		}
-		
+
 		public function set filterer(newFilter:ListFilterer) : *
 		{
 			this._filterer = newFilter;
 		}
-		
+
 		public function get shownItemsHeight() : Number
 		{
 			return this.fShownItemsHeight;
 		}
-		
+
 		protected function doSetSelectedIndex(aiNewIndex:int) : *
 		{
 			var ioldSelection:int = 0;
@@ -374,7 +374,7 @@ package Shared.AS3
 			var i:uint = 0;
 			if(!this.bInitialized || this.numListItems == 0)
 			{
-				trace("BSScrollingList::doSetSelectedIndex -- Can\'t set selection before list has been created.");
+				// trace("BSScrollingList::doSetSelectedIndex -- Can\'t set selection before list has been created.");
 			}
 			if(!this.bDisableSelection && aiNewIndex != this.iSelectedIndex)
 			{
@@ -428,7 +428,7 @@ package Shared.AS3
 									ioffset--;
 								}
 								while(currIndex != this.iSelectedIndex);
-								
+
 							}
 							else if(this.iSelectedIndex > currBottomIndex)
 							{
@@ -439,7 +439,7 @@ package Shared.AS3
 									ioffset++;
 								}
 								while(currIndex != this.iSelectedIndex);
-								
+
 							}
 							else if(selectedBottomEntryCutOff)
 							{
@@ -479,17 +479,17 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		public function get scrollPosition() : uint
 		{
 			return this.iScrollPosition;
 		}
-		
+
 		public function get maxScrollPosition() : uint
 		{
 			return this.iMaxScrollPosition;
 		}
-		
+
 		public function set scrollPosition(aiNewPosition:uint) : *
 		{
 			if(aiNewPosition != this.iScrollPosition && aiNewPosition >= 0 && aiNewPosition <= this.iMaxScrollPosition)
@@ -497,23 +497,23 @@ package Shared.AS3
 				this.updateScrollPosition(aiNewPosition);
 			}
 		}
-		
+
 		protected function updateScrollPosition(aiPosition:uint) : *
 		{
 			this.iScrollPosition = aiPosition;
 			this.UpdateList();
 		}
-		
+
 		public function get selectedEntry() : Object
 		{
 			return this.EntriesA[this.iSelectedIndex];
 		}
-		
+
 		public function get entryList() : Array
 		{
 			return this.EntriesA;
 		}
-		
+
 		public function set entryList(anewArray:Array) : *
 		{
 			this.EntriesA = anewArray;
@@ -522,78 +522,78 @@ package Shared.AS3
 				this.EntriesA = new Array();
 			}
 		}
-		
+
 		public function get disableInput() : Boolean
 		{
 			return this.bDisableInput;
 		}
-		
+
 		public function set disableInput(abFlag:Boolean) : *
 		{
 			this.bDisableInput = abFlag;
 		}
-		
+
 		public function get textOption() : String
 		{
 			return this.strTextOption;
 		}
-		
+
 		public function set textOption(strNewOption:String) : *
 		{
 			this.strTextOption = strNewOption;
 		}
-		
+
 		public function get verticalSpacing() : *
 		{
 			return this.fVerticalSpacing;
 		}
-		
+
 		public function set verticalSpacing(afSpacing:Number) : *
 		{
 			this.fVerticalSpacing = afSpacing;
 		}
-		
+
 		public function get numListItems() : uint
 		{
 			return this.uiNumListItems;
 		}
-		
+
 		public function set numListItems(auiNumItems:uint) : *
 		{
 			this.uiNumListItems = auiNumItems;
 		}
-		
+
 		public function set listEntryClass(strClass:String) : *
 		{
 			this.ListEntryClass = getDefinitionByName(strClass) as Class;
 			this._itemRendererClassName = strClass;
 		}
-		
+
 		public function get restoreListIndex() : Boolean
 		{
 			return this.bRestoreListIndex;
 		}
-		
+
 		public function set restoreListIndex(abFlag:Boolean) : *
 		{
 			this.bRestoreListIndex = abFlag;
 		}
-		
+
 		public function get disableSelection() : Boolean
 		{
 			return this.bDisableSelection;
 		}
-		
+
 		public function set disableSelection(abFlag:Boolean) : *
 		{
 			this.bDisableSelection = abFlag;
 		}
-		
+
 		public function set allowWheelScrollNoSelectionChange(abFlag:Boolean) : *
 		{
 			this.bAllowWheelScrollNoSelectionChange = abFlag;
 		}
-		
+
 		protected function SetNumListItems(auiNumItems:uint) : *
 		{
 			var i:uint = 0;
@@ -612,26 +612,26 @@ package Shared.AS3
 					}
 					else
 					{
-						trace("BSScrollingList::SetNumListItems -- List Entry Class is invalid or does not derive from BSScrollingListEntry.");
+						// trace("BSScrollingList::SetNumListItems -- List Entry Class is invalid or does not derive from BSScrollingListEntry.");
 					}
 				}
 				this.bInitialized = true;
 				dispatchEvent(new Event(LIST_ITEMS_CREATED,true,true));
 			}
 		}
-		
+
 		protected function GetNewListEntry(auiClipIndex:uint) : BSScrollingListEntry
 		{
 			return new this.ListEntryClass() as BSScrollingListEntry;
 		}
-		
+
 		public function UpdateList() : *
 		{
 			var curClip:BSScrollingListEntry = null;
 			var currEntry:BSScrollingListEntry = null;
 			if(!this.bInitialized || this.numListItems == 0)
 			{
-				trace("BSScrollingList::UpdateList -- Can\'t update list before list has been created.");
+				// trace("BSScrollingList::UpdateList -- Can\'t update list before list has been created.");
 			}
 			var faccumHeight:Number = 0;
 			var iupdateIndex:Number = this._filterer.ClampIndex(0);
@@ -705,7 +705,7 @@ package Shared.AS3
 			}
 			this.bUpdated = true;
 		}
-		
+
 		protected function PositionEntries() : *
 		{
 			var faccumHeight:Number = 0;
@@ -717,7 +717,7 @@ package Shared.AS3
 			}
 			this.fShownItemsHeight = faccumHeight;
 		}
-		
+
 		public function InvalidateData() : *
 		{
 			var btriggerSelectionChangeEvent:Boolean = false;
@@ -746,7 +746,7 @@ package Shared.AS3
 				dispatchEvent(new Event(SELECTION_CHANGE,true,true));
 			}
 		}
-		
+
 		public function UpdateSelectedEntry() : *
 		{
 			if(this.iSelectedIndex != -1)
@@ -754,18 +754,18 @@ package Shared.AS3
 				this.SetEntry(this.GetClipByIndex(this.EntriesA[this.iSelectedIndex].clipIndex),this.EntriesA[this.iSelectedIndex]);
 			}
 		}
-		
+
 		public function UpdateEntry(aEntry:Object) : *
 		{
 			this.SetEntry(this.GetClipByIndex(aEntry.clipIndex),aEntry);
 		}
-		
+
 		public function onFilterChange() : *
 		{
 			this.iSelectedIndex = this._filterer.ClampIndex(this.iSelectedIndex);
 			this.CalculateMaxScrollPosition();
 		}
-		
+
 		protected function CalculateMaxScrollPosition() : *
 		{
 			var faccumHeight:Number = NaN;
@@ -818,14 +818,14 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		protected function GetEntryHeight(aiEntryIndex:Number) : Number
 		{
 			var tempClip:BSScrollingListEntry = this.GetClipByIndex(0);
 			this.SetEntry(tempClip,this.EntriesA[aiEntryIndex]);
 			return tempClip != null?Number(tempClip.height):Number(0);
 		}
-		
+
 		public function moveSelectionUp() : *
 		{
 			var iprevFilterMatch:Number = NaN;
@@ -847,7 +847,7 @@ package Shared.AS3
 				this.scrollPosition = this.scrollPosition - 1;
 			}
 		}
-		
+
 		public function moveSelectionDown() : *
 		{
 			var inextFilterMatch:Number = NaN;
@@ -869,7 +869,7 @@ package Shared.AS3
 				this.scrollPosition = this.scrollPosition + 1;
 			}
 		}
-		
+
 		protected function onItemPress() : *
 		{
 			if(!this.bDisableInput && !this.bDisableSelection && this.iSelectedIndex != -1)
@@ -881,7 +881,7 @@ package Shared.AS3
 				dispatchEvent(new Event(LIST_PRESS,true,true));
 			}
 		}
-		
+
 		protected function SetEntry(aEntryClip:BSScrollingListEntry, aEntryObject:Object) : *
 		{
 			if(aEntryClip != null)
@@ -890,19 +890,19 @@ package Shared.AS3
 				aEntryClip.SetEntryText(aEntryObject,this.strTextOption);
 			}
 		}
-		
+
 		protected function onSetPlatform(event:Event) : *
 		{
 			var e:PlatformChangeEvent = event as PlatformChangeEvent;
 			this.SetPlatform(e.uiPlatform,e.bPS3Switch);
 		}
-		
+
 		public function SetPlatform(aiPlatform:Number, abPS3Switch:Boolean) : *
 		{
 			this.iPlatform = aiPlatform;
 			this.bMouseDrivenNav = this.iPlatform == 0?true:false;
 		}
-		
+
 		protected function createMobileScrollingList() : void
 		{
 			var maskDimension:Number = NaN;
@@ -932,7 +932,7 @@ package Shared.AS3
 				this.scrollList.addEventListener(MobileScrollList.ITEM_SELECT,this.onMobileScrollListItemSelected,false,0,true);
 			}
 		}
-		
+
 		protected function destroyMobileScrollingList() : void
 		{
 			if(this.scrollList != null)
@@ -942,7 +942,7 @@ package Shared.AS3
 				this.scrollList.destroy();
 			}
 		}
-		
+
 		protected function onMobileScrollListItemSelected(e:EventWithParams) : void
 		{
 			var renderer:MobileListItemRenderer = e.params.renderer as MobileListItemRenderer;
@@ -979,7 +979,7 @@ package Shared.AS3
 				}
 			}
 		}
-		
+
 		protected function setMobileScrollingListData(data:Vector.<Object>) : void
 		{
 			if(data != null)
@@ -995,7 +995,7 @@ package Shared.AS3
 			}
 			else
 			{
-				trace("setMobileScrollingListData::Error: No data received to display List Items!");
+				// trace("setMobileScrollingListData::Error: No data received to display List Items!");
 			}
 		}
 	}

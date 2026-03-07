@@ -114,7 +114,7 @@ namespace Events {
 				const RE::TESLoadGameEvent& event,
 				RE::BSTEventSource<RE::TESLoadGameEvent>* source
 			) override {
-				parent->dispatch(Events::SaveLoadType::Load);
+				parent->dispatch(SaveLoadType::Load);
 				return RE::BSEventNotifyControl::kContinue;
 			}
 		};

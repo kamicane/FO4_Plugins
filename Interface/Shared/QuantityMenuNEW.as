@@ -9,27 +9,27 @@ package Shared
 	import flash.text.TextField;
 	import scaleform.gfx.Extensions;
 	import scaleform.gfx.TextFieldEx;
-	
+
 	public class QuantityMenuNEW extends BSUIComponent
 	{
-		
-		public static const QUANTITY_CHANGED = "QuantityChanged";
-		 
-		
+
+		public static const QUANTITY_CHANGED:String = "QuantityChanged";
+
+
 		public var Header_tf:TextField;
-		
+
 		public var TopBracketHolder_mc:MovieClip;
-		
+
 		public var Count_tf:TextField;
-		
+
 		public var Slider_mc:BSSlider;
-		
+
 		public var Background_mc:MovieClip;
-		
+
 		private var _CurrCount:uint;
-		
+
 		private var _MaxCount:uint;
-		
+
 		public function QuantityMenuNEW(param1:uint)
 		{
 			super();
@@ -49,18 +49,18 @@ package Shared
 			addEventListener(BSSlider.VALUE_CHANGED,this.onSliderValueChanged);
 			this.visible = false;
 		}
-		
+
 		public function get count() : uint
 		{
 			return this._CurrCount;
 		}
-		
+
 		public function set count(param1:uint) : *
 		{
 			this._CurrCount = param1;
 			SetIsDirty();
 		}
-		
+
 		override public function redrawUIComponent() : void
 		{
 			var _loc1_:Point = null;
@@ -88,7 +88,7 @@ package Shared
 			GlobalFunc.SetText(this.Count_tf,this.count.toString(),false);
 			this.visible = true;
 		}
-		
+
 		public function onSliderValueChanged(param1:CustomEvent) : *
 		{
 			var _loc2_:uint = param1.params as uint;
@@ -98,7 +98,7 @@ package Shared
 				dispatchEvent(new CustomEvent(QUANTITY_CHANGED,_loc2_,true));
 			}
 		}
-		
+
 		public function ProcessUserEvent(param1:String, param2:Boolean) : Boolean
 		{
 			return this.Slider_mc.ProcessUserEvent(param1,param2);

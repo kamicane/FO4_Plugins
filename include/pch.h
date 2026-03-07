@@ -30,6 +30,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <fmt/base.h>
 #include <fmt/format.h>

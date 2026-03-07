@@ -1,3 +1,11 @@
+---
+If:
+  PathMatch: ./extern/CommonLibF4/.*
+CompileFlags:
+  CompilationDatabase: ./extern/CommonLibF4/
+
+---
+
 CompileFlags:
   Add:
   - -std:c++latest
@@ -6,8 +14,6 @@ CompileFlags:
 Diagnostics:
   MissingIncludes: None
   UnusedIncludes: Strict
-  Suppress:
-    - "standalone_class_nested_name_specifier"
   Includes:
     IgnoreHeader:
       - utf8/cpp17\.h

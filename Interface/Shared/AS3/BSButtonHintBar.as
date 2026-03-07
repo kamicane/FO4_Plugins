@@ -1,4 +1,4 @@
-﻿package Shared.AS3
+package Shared.AS3
 {
 	import Shared.AS3.COMPANIONAPP.CompanionAppMode;
 	import Shared.AS3.COMPANIONAPP.MobileButtonHint;
@@ -37,7 +37,7 @@
 
 		public function BSButtonHintBar()
 		{
-			trace("[BSButtonHintBar] (CTOR)");
+			// trace("[BSButtonHintBar] (CTOR)");
 			this.SetButtonHintData = this.SetButtonHintData_Impl;
 			super();
 			visible = false;
@@ -117,12 +117,10 @@
 
 		override public function onAcquiredByNativeCode() : *
 		{
-			trace("[BSButtonHintBar] onAcquiredByNativeCode");
 			var emptyButtonHintDataV:Vector.<BSButtonHintData> = null;
 			super.onAcquiredByNativeCode();
 			if(this.bRedirectToButtonBarMenu)
 			{
-				trace("[BSButtonHintBar] onAcquiredByNativeCode => bRedirectToButtonBarMenu");
 				this.SetButtonHintData(this._buttonHintDataV);
 				emptyButtonHintDataV = new Vector.<BSButtonHintData>();
 				this.SetButtonHintData_Impl(emptyButtonHintDataV);
@@ -132,7 +130,6 @@
 
 		private function SetButtonHintData_Impl(abuttonHintDataV:Vector.<BSButtonHintData>) : void
 		{
-			trace("[BSButtonHintBar] SetButtonHintData_Impl");
 			this._buttonHintDataV.forEach(function(item:BSButtonHintData, index:int, vector:Vector.<BSButtonHintData>):*
 			{
 				if(item)
@@ -149,7 +146,6 @@
 				}
 			},this);
 			this.CreateButtonHints();
-			trace("[BSButtonHintBar] SetButtonHintData_Impl END");
 		}
 
 		public function onButtonHintDataDirtyEvent(arEvent:Event) : void
@@ -159,7 +155,6 @@
 
 		private function CreateButtonHints() : *
 		{
-			trace("[ButtonHintBar] createButtonHints");
 			visible = false;
 			while(this.ButtonPoolV.length < this._buttonHintDataV.length)
 			{
@@ -169,7 +164,6 @@
 				}
 				else
 				{
-					trace("[ButtonHintBar] pushButtonHint");
 					this.ButtonPoolV.push(new BSButtonHint());
 				}
 			}
@@ -178,18 +172,14 @@
 				this.ButtonPoolV[i].ButtonHintData = i < this._buttonHintDataV.length?this._buttonHintDataV[i]:null;
 			}
 			SetIsDirty();
-			trace("[ButtonHintBar] endCreateButtonHints");
 		}
 
 		override public function redrawUIComponent() : void
 		{
-			trace("[BSButtonHintBar] redrawUIComponent 0");
-
 			var curButtonHelp:BSButtonHint = null;
 			var ourBounds:Rectangle = null;
 			var bgGraphics:Graphics = null;
 			super.redrawUIComponent();
-			trace("[BSButtonHintBar] redrawUIComponent 1");
 			if(this.ShadedBackground_mc && contains(this.ShadedBackground_mc))
 			{
 				removeChild(this.ShadedBackground_mc);
@@ -201,24 +191,20 @@
 			{
 				nextRightAlignedX = stage.stageWidth - 75;
 			}
-			trace("[BSButtonHintBar] redrawUIComponent 2");
 			for(var i:Number = 0; i < this.ButtonPoolV.length; i++)
 			{
 				curButtonHelp = this.ButtonPoolV[i];
 				if(curButtonHelp.ButtonVisible && this.CanBeVisible())
 				{
-					trace("[BSButtonHintBar] redrawUIComponent XX2");
 					bHasVisibleButtons = true;
 					if(!this.ButtonHintBarInternal_mc.contains(curButtonHelp))
 					{
 						this.ButtonHintBarInternal_mc.addChild(curButtonHelp);
 					}
-					trace("[BSButtonHintBar] redrawUIComponent XX3");
 					if(curButtonHelp.bIsDirty)
 					{
 						curButtonHelp.redrawUIComponent();
 					}
-					trace("[BSButtonHintBar] redrawUIComponent XX4");
 					if(CompanionAppMode.isOn && curButtonHelp.Justification == BSButtonHint.JUSTIFY_RIGHT)
 					{
 						nextRightAlignedX = nextRightAlignedX - curButtonHelp.width;
@@ -229,15 +215,12 @@
 						curButtonHelp.x = nextX;
 						nextX = nextX + (curButtonHelp.width + 20);
 					}
-
-					trace("[BSButtonHintBar] redrawUIComponent XX5");
 				}
 				else if(this.ButtonHintBarInternal_mc.contains(curButtonHelp))
 				{
 					this.ButtonHintBarInternal_mc.removeChild(curButtonHelp);
 				}
 			}
-			trace("[BSButtonHintBar] redrawUIComponent 3");
 			if(this.ButtonPoolV.length > this._buttonHintDataV.length)
 			{
 				this.ButtonPoolV.splice(this._buttonHintDataV.length,this.ButtonPoolV.length - this._buttonHintDataV.length);
@@ -246,13 +229,11 @@
 			{
 				this.ButtonHintBarInternal_mc.x = -this.ButtonHintBarInternal_mc.width / 2;
 			}
-			trace("[BSButtonHintBar] redrawUIComponent 4");
 			var internalBounds:Rectangle = this.ButtonHintBarInternal_mc.getBounds(this);
 			this.ButtonBracket_Left_mc.x = internalBounds.left - this.ButtonBracket_Left_mc.width;
 			this.ButtonBracket_Right_mc.x = internalBounds.right;
 			this.ButtonBracket_Left_mc.visible = this.bShowBrackets && !CompanionAppMode.isOn;
 			this.ButtonBracket_Right_mc.visible = this.bShowBrackets && !CompanionAppMode.isOn;
-			trace("[BSButtonHintBar] redrawUIComponent 5");
 			if(ShadedBackgroundMethod == "Flash" && this.bUseShadedBackground)
 			{
 				if(!this.ShadedBackground_mc)
@@ -267,9 +248,7 @@
 				bgGraphics.drawRect(ourBounds.x,ourBounds.y,ourBounds.width,ourBounds.height);
 				bgGraphics.endFill();
 			}
-			trace("[BSButtonHintBar] redrawUIComponent 6");
 			visible = bHasVisibleButtons;
-			trace("[BSButtonHintBar] visible = " + visible);
 		}
 	}
 }

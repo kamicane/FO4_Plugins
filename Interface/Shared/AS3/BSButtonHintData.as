@@ -283,7 +283,7 @@ package Shared.AS3
 
 		private function onTextClick_Impl() : void
 		{
-			trace("BSButtonHintData::onTextClick_Impl");
+			// trace("BSButtonHintData::onTextClick_Impl");
 			if(this._callbackFunction is Function)
 			{
 				this._callbackFunction.call();
@@ -292,7 +292,7 @@ package Shared.AS3
 
 		private function onSecondaryButtonClick_Impl() : void
 		{
-			trace("BSButtonHintData::onSecondaryButtonClick_Impl");
+			// trace("BSButtonHintData::onSecondaryButtonClick_Impl");
 			if(this._secondaryButtonCallback is Function)
 			{
 				this._secondaryButtonCallback.call();

@@ -58,12 +58,6 @@ target_compile_definitions(
   _UNICODE
 )
 
-target_compile_definitions(
-  CommonLibF4
-  PUBLIC
-  F4SE_SUPPORT_XBYAK
-  _SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING
-)
 
 target_compile_features(
   ${PROJECT_ID}
@@ -77,7 +71,7 @@ target_include_directories(
   ${PROJECT_ID}
   PRIVATE
   ${CMAKE_SOURCE_DIR}/include
-  ${PROJECT_DIR}/include
+  ${CMAKE_SOURCE_DIR}/include/${PROJECT_ID}
 )
 
 target_precompile_headers(
@@ -110,15 +104,6 @@ target_compile_definitions(
   NOMINMAX
   NOSERVICE
 )
-
-file(GLOB PROJECT_HEADERS CONFIGURE_DEPENDS "${PROJECT_DIR}/include/*.hpp")
-set_source_files_properties(${PROJECT_HEADERS} PROPERTIES LANGUAGE CXX HEADER_FILE_ONLY OFF)
-
-add_library(CLANGD_PROJECT_HEADERS OBJECT EXCLUDE_FROM_ALL ${PROJECT_HEADERS})
-target_compile_definitions(CLANGD_PROJECT_HEADERS PRIVATE $<TARGET_PROPERTY:${PROJECT_ID},COMPILE_DEFINITIONS>)
-target_include_directories(CLANGD_PROJECT_HEADERS PRIVATE $<TARGET_PROPERTY:${PROJECT_ID},INCLUDE_DIRECTORIES>)
-target_compile_options(CLANGD_PROJECT_HEADERS PRIVATE $<TARGET_PROPERTY:${PROJECT_ID},COMPILE_OPTIONS>)
-target_precompile_headers(CLANGD_PROJECT_HEADERS PRIVATE "${CMAKE_SOURCE_DIR}/include/pch.h")
 
 set(OUTPUT_DIR_F4SE "${PROJECT_DIR}/F4SE/Plugins")
 

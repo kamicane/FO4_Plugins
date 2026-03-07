@@ -30,7 +30,6 @@ package Shared
 			this._uiPlatform = PlatformChangeEvent.PLATFORM_INVALID;
 			this._bPS3Switch = false;
 			this._bRestoreLostFocus = false;
-			GlobalFunc.MaintainTextFormat();
 			addEventListener(Event.ADDED_TO_STAGE,this.onStageInit);
 			addEventListener(Event.REMOVED_FROM_STAGE,this.onStageDestruct);
 			addEventListener(PlatformRequestEvent.PLATFORM_REQUEST,this.onPlatformRequestEvent,true);
